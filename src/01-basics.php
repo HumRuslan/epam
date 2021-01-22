@@ -12,6 +12,10 @@
  */
 function getMinuteQuarter(int $minute)
 {
+    if ($minute > 60 || $minute < 0) {
+        throw new InvalidArgumentException('InvalidArgumentException');
+    }
+    return ceil($minute/15);
 }
 
 /**
@@ -27,6 +31,15 @@ function getMinuteQuarter(int $minute)
  */
 function isLeapYear(int $year)
 {
+    if ($year < 1900) {
+        throw new InvalidArgumentException('InvalidArgumentException');
+    }
+
+    if ($year%4 == 0 && ($year%100 != 0 || $year%4 == 0)) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 /**
@@ -42,4 +55,14 @@ function isLeapYear(int $year)
  */
 function isSumEqual(string $input)
 {
+    if (strlen($input) != 6) {
+        throw new InvalidArgumentException('InvalidArgumentException');
+    }
+    if(($input[0] + $input[1] + $input[2]) == ($input[3] + $input[4] + $input[5])) {
+        return true;
+    } else {
+        return false;
+    }
 }
+
+echo(isSumEqual('111111'));
