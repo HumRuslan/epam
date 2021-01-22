@@ -64,5 +64,3 @@ function isSumEqual(string $input)
         return false;
     }
 }
-
-echo(isSumEqual('111111'));
