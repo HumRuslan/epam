@@ -12,10 +12,23 @@
  */
 function getMinuteQuarter(int $minute)
 {
-    if ($minute > 60 || $minute < 0) {
-        throw new InvalidArgumentException('InvalidArgumentException');
+    if ($minute == 0) $minute = 60;
+    switch (ceil($minute/15)) {
+        case 1:
+            return 'first';
+            break;
+        case 2:
+            return 'second';
+            break;
+        case 3:
+            return 'third';
+            break;
+        case 4:
+            return 'fourth';
+            break;
+        default:
+            throw new InvalidArgumentException('InvalidArgumentException');
     }
-    return ceil($minute/15);
 }
 
 /**
