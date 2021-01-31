@@ -9,9 +9,14 @@
  * @param  array  $airports
  * @return string[]
  */
-function getUniqueFirstLetters(array $airports)
+function getUniqueFirstLetters(array $airports) : array
 {
-    // put your logic here
-
-    return ['A', 'B', 'C'];
+    $result = [];
+    foreach ($airports as $airport) {
+        if (!in_array($airport['name'][0], $result)) {
+            array_push($result, $airport['name'][0]);
+        }
+    }
+    asort($result);
+    return $result;
 }
