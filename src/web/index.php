@@ -3,51 +3,6 @@ require_once './functions.php';
 
 $airports = require './airports.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "GET") {
-    if (!isset($_SESSION)) session_start();
-    if (!$_GET) {
-        unset($_SESSION["filter_by_first_letter"]);
-        unset($_SESSION["filter_by_state"]);
-    }
-    if (isset($_GET["filter_by_first_letter"])) {
-        $_SESSION["filter_by_first_letter"] = $_GET["filter_by_first_letter"];
-    }
-    if (isset($_GET["sort"])) {
-        $_SESSION["sort"] = $_GET["sort"];
-    }
-    if (isset($_GET["filter_by_state"])) {
-        $_SESSION["filter_by_state"] = $_GET["filter_by_state"];
-    }
-    if (isset($_GET["page"])) {
-        $_SESSION["page"] = $_GET["page"];
-    } else {
-        $_SESSION["page"] = 1;
-    }
-    if (isset($_SESSION["filter_by_first_letter"])) {
-        $airports = array_filter($airports, function ($item) {
-            return $item["name"][0] == $_SESSION['filter_by_first_letter'];
-        });
-    }
-    if (isset($_SESSION["filter_by_state"])) {
-        $airports = array_filter($airports, function ($item) {
-            return $item["state"] == $_SESSION["filter_by_state"];
-        });
-    }
-    if ($_SESSION["page"] >= 10) {
-        $start_page = $_SESSION["page"] - 5;
-        $end_page = (ceil(count($airports)/10) > $_SESSION["page"] + 5) ? $_SESSION["page"] + 5: ceil(count($airports)/10);
-    } else {
-        $start_page = 1;
-        $end_page = (ceil(count($airports)/10) > 10) ? 10: ceil(count($airports)/10);
-    }
-    if (isset($_SESSION["sort"])) {
-        usort($airports, function ($a, $b) {
-            return strnatcmp($a[$_SESSION["sort"]], $b[$_SESSION["sort"]]);
-        });
-    }
-    $airports = array_chunk($airports, 5, true);
-}
-
 // Filtering
 /**
  * Here you need to check $_GET request if it has any filtering
@@ -68,6 +23,55 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
  * and apply pagination logic
  * (see Pagination task below)
  */
+
+if ($_SERVER["REQUEST_METHOD"] == "GET") {
+    $url_sort = '';
+    if (!isset($_SESSION)) session_start();
+    if (!$_GET) {
+        unset($_SESSION["filter_by_first_letter"]);
+        unset($_SESSION["filter_by_state"]);
+    }
+    if (isset($_GET["filter_by_first_letter"])) {
+        $_SESSION["filter_by_first_letter"] = $_GET["filter_by_first_letter"];
+    }
+    if (isset($_GET["sort"])) {
+        $_SESSION["sort"] = $_GET["sort"];
+    }
+    if (isset($_GET["filter_by_state"])) {
+        $_SESSION["filter_by_state"] = $_GET["filter_by_state"];
+    }
+    if (isset($_GET["page"])) {
+        $_SESSION["page"] = $_GET["page"];
+    } else {
+        $_SESSION["page"] = 1;
+    }
+    $url_sort .= '&page=' . $_SESSION["page"];
+    if (isset($_SESSION["filter_by_first_letter"])) {
+        $url_sort .= '&filter_by_first_letter=' . $_SESSION["filter_by_first_letter"];
+        $airports = array_filter($airports, function ($item) {
+            return $item["name"][0] == $_SESSION['filter_by_first_letter'];
+        });
+    }
+    if (isset($_SESSION["filter_by_state"])) {
+        $url_sort .= '&filter_by_state=' . $_SESSION["filter_by_state"];
+        $airports = array_filter($airports, function ($item) {
+            return $item["state"] == $_SESSION["filter_by_state"];
+        });
+    }
+    if ($_SESSION["page"] >= 10) {
+        $start_page = $_SESSION["page"] - 5;
+        $end_page = (ceil(count($airports)/10) > $_SESSION["page"] + 5) ? $_SESSION["page"] + 5: ceil(count($airports)/10);
+    } else {
+        $start_page = 1;
+        $end_page = (ceil(count($airports)/10) > 10) ? 10: ceil(count($airports)/10);
+    }
+    if (isset($_SESSION["sort"])) {
+        usort($airports, function ($a, $b) {
+            return strnatcmp($a[$_SESSION["sort"]], $b[$_SESSION["sort"]]);
+        });
+    }
+    $airports = array_chunk($airports, 5, true);
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -114,18 +118,6 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
            i.e. if you already have /?page=2&filter_by_first_letter=A after applying sorting the url should looks like
            /?page=2&filter_by_first_letter=A&sort=name
     -->
-    <?php
-        $url_sort = '';
-        if (isset($_SESSION["filter_by_first_letter"])) {
-            $url_sort .= '&filter_by_first_letter=' . $_SESSION["filter_by_first_letter"];
-        }
-        if (isset($_SESSION["filter_by_state"])) {
-            $url_sort .= '&filter_by_state=' . $_SESSION["filter_by_state"];
-        }
-        if (isset($_SESSION["page"])) {
-            $url_sort .= '&page=' . $_SESSION["page"];
-        }
-    ?>
     <table class="table">
         <thead>
         <tr>
@@ -149,7 +141,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                i.e. if you have filter_by_first_letter set you can additionally use filter_by_state
         -->
         <?php
-            if ($airports) {
+            if ($airports):
                 foreach ($airports[$_SESSION['page']-1] as $airport): ?>
         <tr>
             <td><?= $airport['name'] ?></td>
@@ -161,7 +153,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         </tr>
         <?php
                 endforeach;
-            }
+            endif;
         ?>
         </tbody>
     </table>
