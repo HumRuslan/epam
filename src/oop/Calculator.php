@@ -1,7 +1,6 @@
 <?php
 
 namespace src\oop;
-
 use src\oop\Commands\CommandInterface;
 
 class Calculator
@@ -127,7 +126,11 @@ class Calculator
     public function undo()
     {
         // TODO implement undo logic here
-
+        if (count($this->intents) != 0) {
+            array_pop($this->intents);
+        } else {
+              $this->reset();
+        }
         return $this;
     }
 
@@ -139,7 +142,9 @@ class Calculator
     public function replay()
     {
         // TODO implement replay logic here
-
+        if (count($this->intents) != 0) {
+            $this->intents[] = $this->intents[count($this->intents) - 1];
+        }
         return $this;
     }
 
