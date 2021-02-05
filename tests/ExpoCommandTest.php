@@ -27,14 +27,16 @@ class ExpoCommandTest extends TestCase
     {
         return [
             [1, 1, 1],
-            [2, 2, 4],
-            [5, 3, 125],
             [2, -1, 0.5],
+            [2, 2, 4],
+            [-4, 2, 16],
+            [5, 3, 125],
+            [-5, 3, -125],
             ['5', 0, 1],
             [-8, 1/3, -2],
             [4, 1/2, 2],
-            [-4, 2, 16],
-            [-5, 3, -125],
+            [0.027, 1/3, 0.3],
+            [-0.008, -1/3, -5],
         ];
     }
 
@@ -54,6 +56,7 @@ class ExpoCommandTest extends TestCase
 
         $this->command->execute(1);
         $this->command->execute(-4, 1/2);
+        $this->command->execute(-4, 1/8);
     }
 
     /**
