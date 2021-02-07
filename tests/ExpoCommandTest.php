@@ -8,7 +8,7 @@ class ExpoCommandTest extends TestCase
     /**
      * @var ExpoCommand
      */
-    private $command;
+    private ExpoCommand $command;
 
     /**
      * @see https://phpunit.readthedocs.io/en/9.3/fixtures.html#more-setup-than-teardown
@@ -23,7 +23,7 @@ class ExpoCommandTest extends TestCase
     /**
      * @return array
      */
-    public function commandPositiveDataProvider()
+    public function commandPositiveDataProvider(): array
     {
         return [
             [1, 1, 1],
@@ -42,6 +42,9 @@ class ExpoCommandTest extends TestCase
 
     /**
      * @dataProvider commandPositiveDataProvider
+     * @param $a
+     * @param $b
+     * @param $expected
      */
     public function testCommandPositive($a, $b, $expected)
     {
@@ -55,8 +58,31 @@ class ExpoCommandTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         $this->command->execute(1);
-        $this->command->execute(-4, 1/2);
-        $this->command->execute(-4, 1/8);
+    }
+
+    /**
+     * @return array
+     */
+    public function commandNegativeDataProvider(): array
+    {
+        return [
+            [-4, 1/2],
+            [-4, -1/2],
+            [-4, 1/8],
+        ];
+    }
+
+    /**
+     * @dataProvider commandNegativeDataProvider
+     * @param $a
+     * @param $b
+     */
+
+    public function testCommandNegativeSQR($a, $b)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->command->execute($a, $b);
     }
 
     /**

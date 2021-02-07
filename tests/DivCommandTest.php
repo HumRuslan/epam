@@ -48,6 +48,12 @@ class DivCommandTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         $this->command->execute(1);
+    }
+
+    public function testCommandNegativeZero()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
         $this->command->execute(4, 0);
     }
 
