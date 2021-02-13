@@ -26,50 +26,44 @@ $airports = require './airports.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
     $url_sort = '';
-    if (!isset($_SESSION)) session_start();
-    if (!$_GET) {
-        unset($_SESSION["filter_by_first_letter"]);
-        unset($_SESSION["filter_by_state"]);
-    }
-    if (isset($_GET["filter_by_first_letter"])) {
-        $_SESSION["filter_by_first_letter"] = $_GET["filter_by_first_letter"];
-    }
-    if (isset($_GET["sort"])) {
-        $_SESSION["sort"] = $_GET["sort"];
-    }
-    if (isset($_GET["filter_by_state"])) {
-        $_SESSION["filter_by_state"] = $_GET["filter_by_state"];
-    }
+    $url_filter_by_first_letter = '';
+    $url_filter_by_state = '';
+
     if (isset($_GET["page"])) {
-        $_SESSION["page"] = $_GET["page"];
+        $page = $_GET["page"];
     } else {
-        $_SESSION["page"] = 1;
+        $page = 1;
     }
-    $url_sort .= '&page=' . $_SESSION["page"];
-    if (isset($_SESSION["filter_by_first_letter"])) {
-        $url_sort .= '&filter_by_first_letter=' . $_SESSION["filter_by_first_letter"];
+
+    if (isset($_GET["filter_by_first_letter"])) {
+        $url_filter_by_first_letter = '&filter_by_first_letter=' . $_GET["filter_by_first_letter"];
         $airports = array_filter($airports, function ($item) {
-            return $item["name"][0] == $_SESSION['filter_by_first_letter'];
+            return $item["name"][0] == $_GET["filter_by_first_letter"];
         });
     }
-    if (isset($_SESSION["filter_by_state"])) {
-        $url_sort .= '&filter_by_state=' . $_SESSION["filter_by_state"];
+
+    if (isset($_GET["filter_by_state"])) {
+        $url_filter_by_state .= '&filter_by_state=' . $_GET["filter_by_state"];
         $airports = array_filter($airports, function ($item) {
-            return $item["state"] == $_SESSION["filter_by_state"];
+            return $item["state"] == $_GET["filter_by_state"];
         });
     }
-    if ($_SESSION["page"] >= 10) {
-        $start_page = $_SESSION["page"] - 5;
-        $end_page = (ceil(count($airports)/10) > $_SESSION["page"] + 5) ? $_SESSION["page"] + 5: ceil(count($airports)/10);
+
+    if ($page >= 10) {
+        $start_page = $page - 5;
+        $end_page = (ceil(count($airports)/10) > $page + 5) ? $page + 5: ceil(count($airports)/10);
     } else {
         $start_page = 1;
         $end_page = (ceil(count($airports)/10) > 10) ? 10: ceil(count($airports)/10);
     }
-    if (isset($_SESSION["sort"])) {
+
+    if (isset($_GET["sort"])) {
+        $url_sort .= '&sort=' . $_GET["sort"];
         usort($airports, function ($a, $b) {
-            return strnatcmp($a[$_SESSION["sort"]], $b[$_SESSION["sort"]]);
+            return strnatcmp($a[$_GET["sort"]], $b[$_GET["sort"]]);
         });
     }
+
     $airports = array_chunk($airports, 5, true);
 }
 ?>
@@ -102,7 +96,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         Filter by first letter:
 
         <?php foreach (getUniqueFirstLetters(require './airports.php') as $letter): ?>
-            <a href="index.php?filter_by_first_letter=<?= $letter ?>"><?= $letter ?></a>
+            <a href="index.php?filter_by_first_letter=<?= $letter  . $url_filter_by_state . $url_sort?>"><?= $letter ?></a>
         <?php endforeach; ?>
 
         <a href="index.php" class="float-right">Reset all filters</a>
@@ -121,10 +115,10 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     <table class="table">
         <thead>
         <tr>
-            <th scope="col"><a href="index.php?sort=name<?= $url_sort ?>">Name</a></th>
-            <th scope="col"><a href="index.php?sort=code<?= $url_sort ?>">Code</a></th>
-            <th scope="col"><a href="index.php?sort=state<?= $url_sort ?>">State</a></th>
-            <th scope="col"><a href="index.php?sort=city<?= $url_sort ?>">City</a></th>
+            <th scope="col"><a href="index.php?sort=name&page=<?=$page . $url_filter_by_first_letter . $url_filter_by_state ?>">Name</a></th>
+            <th scope="col"><a href="index.php?sort=code&page=<?=$page . $url_filter_by_first_letter . $url_filter_by_state ?>">Code</a></th>
+            <th scope="col"><a href="index.php?sort=state&page=<?=$page . $url_filter_by_first_letter . $url_filter_by_state ?>">State</a></th>
+            <th scope="col"><a href="index.php?sort=city&page=<?=$page . $url_filter_by_first_letter . $url_filter_by_state ?>">City</a></th>
             <th scope="col">Address</th>
             <th scope="col">Timezone</th>
         </tr>
@@ -142,11 +136,11 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         -->
         <?php
             if ($airports):
-                foreach ($airports[$_SESSION['page']-1] as $airport): ?>
+                foreach ($airports[$page-1] as $airport): ?>
         <tr>
             <td><?= $airport['name'] ?></td>
             <td><?= $airport['code'] ?></td>
-            <td><a href="index.php?filter_by_state=<?= $airport['state'] ?>"><?= $airport['state'] ?></a></td>
+            <td><a href="index.php?filter_by_state=<?= $airport['state']  . $url_filter_by_first_letter . $url_sort?>"><?= $airport['state'] ?></a></td>
             <td><?= $airport['city'] ?></td>
             <td><?= $airport['address'] ?></td>
             <td><?= $airport['timezone'] ?></td>
@@ -171,13 +165,13 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         <ul class="pagination justify-content-center">
             <?php
                 for($i = $start_page; $i <= $end_page; $i++){
-                    if ($i == $_SESSION['page']){
+                    if ($i == $page){
             ?>
-            <li class="page-item active"><a class="page-link" href="index.php?page=<?=$i?>"><?=$i?></a></li>
+            <li class="page-item active"><a class="page-link" href="index.php?page=<?=$i . $url_filter_by_first_letter . $url_filter_by_state . $url_sort?>"><?=$i?></a></li>
             <?php
                     } else {
              ?>
-            <li class="page-item"><a class="page-link" href="index.php?page=<?=$i?>"><?=$i?></a></li>
+            <li class="page-item"><a class="page-link" href="index.php?page=<?=$i . $url_filter_by_first_letter . $url_filter_by_state . $url_sort?>"><?=$i?></a></li>
             <?php
                     }
                 }
