@@ -149,10 +149,10 @@ BEGIN
     SELECT flag;
     IF flag = 0 THEN
         ROLLBACK;
-        SELECT 'ERROR - "Insufficient quantity"' AS msg;
+        SELECT 'error' AS `status`, 'Insufficient quantity' AS msg;
     ELSE
         COMMIT;
-        SELECT 'SUCCES - "Data has updated"' AS msg;
+        SELECT 'success' AS `status`, 'Data has updated' AS msg;
     END IF;
 END $$
 DELIMITER ;
