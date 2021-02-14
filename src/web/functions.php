@@ -20,3 +20,23 @@ function getUniqueFirstLetters(array $airports) : array
     asort($result);
     return $result;
 }
+
+function getFilterByFirstLetter($airports, $value) {
+    return array_filter($airports, function ($item) use ($value) {
+        return $item["name"][0] == $value;
+    });
+}
+
+function getFilterByState($airports, $value)
+{
+    return array_filter($airports, function ($item) use ($value) {
+        return $item["state"] == $value;
+    });
+}
+
+function getSort($airports, $value) {
+    usort($airports, function ($a, $b) use ($value) {
+        return strnatcmp($a[$value], $b[$value]);
+    });
+    return $airports;
+}

@@ -32,7 +32,6 @@ echo $calc->init(15)
 
 echo PHP_EOL;
 
-// TODO implement replay method
 // should output 4
 echo $calc->init(1)
     ->compute('+', 1)
@@ -42,7 +41,6 @@ echo $calc->init(1)
 
 echo PHP_EOL;
 
-// TODO implement undo method
 // should output 1
 echo $calc->init(1)
     ->compute('+', 5)

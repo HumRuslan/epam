@@ -125,12 +125,7 @@ class Calculator
      */
     public function undo()
     {
-        // TODO implement undo logic here
-        if (count($this->intents) != 0) {
-            array_pop($this->intents);
-        } else {
-              $this->reset();
-        }
+        (is_null(array_pop($this->intents))) ? $this->value = 0.0: false;
         return $this;
     }
 
@@ -141,10 +136,7 @@ class Calculator
      */
     public function replay()
     {
-        // TODO implement replay logic here
-        if (count($this->intents) != 0) {
-            $this->intents[] = $this->intents[count($this->intents) - 1];
-        }
+        (end($this->intents)) ? $this->intents[] = end($this->intents) : false;
         return $this;
     }
 
@@ -168,3 +160,5 @@ class Calculator
         return $result;
     }
 }
+
+

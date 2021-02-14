@@ -1,5 +1,6 @@
 <?php
 require_once './functions.php';
+require_once '../02-strings.php';
 
 $airports = require './airports.php';
 
@@ -28,25 +29,17 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     $url_sort = '';
     $url_filter_by_first_letter = '';
     $url_filter_by_state = '';
+    $page = 1;
 
-    if (isset($_GET["page"])) {
-        $page = $_GET["page"];
-    } else {
-        $page = 1;
-    }
+    foreach ($_GET as $key => $value) {
+        if ($key != 'page') {
+            $airports = snakeCaseToCamelCase('get_'.$key)($airports, $value);
+            $name_url = 'url_' .$key;
+            $$name_url = "&$key=$value";
+        } else {
+            $page = $value;
+        }
 
-    if (isset($_GET["filter_by_first_letter"])) {
-        $url_filter_by_first_letter = '&filter_by_first_letter=' . $_GET["filter_by_first_letter"];
-        $airports = array_filter($airports, function ($item) {
-            return $item["name"][0] == $_GET["filter_by_first_letter"];
-        });
-    }
-
-    if (isset($_GET["filter_by_state"])) {
-        $url_filter_by_state .= '&filter_by_state=' . $_GET["filter_by_state"];
-        $airports = array_filter($airports, function ($item) {
-            return $item["state"] == $_GET["filter_by_state"];
-        });
     }
 
     if ($page >= 10) {
@@ -55,13 +48,6 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     } else {
         $start_page = 1;
         $end_page = (ceil(count($airports)/10) > 10) ? 10: ceil(count($airports)/10);
-    }
-
-    if (isset($_GET["sort"])) {
-        $url_sort .= '&sort=' . $_GET["sort"];
-        usort($airports, function ($a, $b) {
-            return strnatcmp($a[$_GET["sort"]], $b[$_GET["sort"]]);
-        });
     }
 
     $airports = array_chunk($airports, 5, true);
