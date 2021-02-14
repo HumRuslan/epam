@@ -123,23 +123,38 @@ WHERE c.`id` NOT IN (
 )
 ORDER BY c.`family`;
 
--- Провести всі order зі статусом false з оновленням кількості товару
+-- Провести всі order зі статусом false з оновленням кількості товару та перевіркою його наявності
 
-START TRANSACTION;
-UPDATE `tovar`
-SET `tovar`.`count` = `tovar`.`count` - (
-    SELECT SUM(`item`.`count`)
-    FROM `item`, `order`
-    WHERE `item`.`order_id` = `order`.`id` AND `order`.`status` = 0 AND `item`.`tovar_id` = `tovar`.`id`
-)
-WHERE `tovar`.`id` IN (
-    SELECT DISTINCT(`item`.`tovar_id`)
-    FROM `item`, `order`
-    WHERE `item`.`order_id` = `order`.`id` AND `order`.`status` = 0
-);
+DELIMITER $$
+CREATE PROCEDURE order_complited()
+BEGIN
+    DECLARE flag  INT DEFAULT 1;
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+	    SET flag = 0;
+    START TRANSACTION;
+    UPDATE `tovar`
+    SET `tovar`.`count` = `tovar`.`count` - (
+        SELECT SUM(`item`.`count`)
+        FROM `item`, `order`
+        WHERE `item`.`order_id` = `order`.`id` AND `order`.`status` = 0 AND `item`.`tovar_id` = `tovar`.`id`
+    )
+    WHERE `tovar`.`id` IN (
+        SELECT DISTINCT(`item`.`tovar_id`)
+        FROM `item`, `order`
+        WHERE `item`.`order_id` = `order`.`id` AND `order`.`status` = 0
+    );
+    UPDATE `order`
+    SET `order`.`status` = 1
+    WHERE `order`.`status` = 0;
+    SELECT flag;
+    IF flag = 0 THEN
+        ROLLBACK;
+        SELECT 'ERROR - "Insufficient quantity"' AS msg;
+    ELSE
+        COMMIT;
+        SELECT 'SUCCES - "Data has updated"' AS msg;
+    END IF;
+END $$
+DELIMITER ;
 
-UPDATE `order`
-SET `order`.`status` = 1
-WHERE `order`.`status` = 0;
--- ROLLBACK;
-COMMIT;
+CALL order_complited();
