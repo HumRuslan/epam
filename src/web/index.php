@@ -44,10 +44,10 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 
     if ($page >= 10) {
         $start_page = $page - 5;
-        $end_page = (ceil(count($airports)/10) > $page + 5) ? $page + 5: ceil(count($airports)/10);
+        $end_page = (ceil(count($airports)/5) > $page + 5) ? $page + 5: ceil(count($airports)/5);
     } else {
         $start_page = 1;
-        $end_page = (ceil(count($airports)/10) > 10) ? 10: ceil(count($airports)/10);
+        $end_page = (ceil(count($airports)/5) > 10) ? 10: ceil(count($airports)/5);
     }
 
     $airports = array_chunk($airports, 5, true);
